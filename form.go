@@ -1,3 +1,9 @@
+// Package form marshalles/unmarshalles Go structs into [*http.Request] forms
+//
+// This package adds the struct tag "form", only fields with this tag will be marshalled/unmarshalled.
+// All primative types including their slice and array equivalent are supported.
+// Those include bool, string, int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64,
+// float32, float64, complex64, complex128.
 package form
 
 import (
@@ -9,6 +15,9 @@ import (
 	"strings"
 )
 
+// Unmarshal parses the [*http.Request] form and populates the struct fields with the "form" struct tag in i.
+// If i is not a pointer to a struct then a [InvalidUnmarshalError] error is returned.
+// If a form value cannot be parsed into the struct field, either mismatched type or value overflows type, then a [UnmarshalTypeError] is returned.
 func Unmarshal(r *http.Request, i interface{}) error {
 	rv := reflect.ValueOf(i)
 	if rv.Kind() != reflect.Pointer || rv.IsNil() {
@@ -45,6 +54,10 @@ func Unmarshal(r *http.Request, i interface{}) error {
 	return nil
 }
 
+// Marshal encodes the fields with the "form" struct tag into a URL encoded form on the request.
+// Marshal does not set the Content-Type header for the request.
+// If i is not a pointer to a struct then a [InvalidMarshalError] error is returned.
+// If a field in the struct does not match the supported primative types, then a [MarshalTypeError] error is returned.
 func Marshal(r *http.Request, i interface{}) error {
 	rv := reflect.ValueOf(i)
 	if rv.Kind() != reflect.Pointer || rv.IsNil() {
@@ -79,10 +92,14 @@ func Marshal(r *http.Request, i interface{}) error {
 	return nil
 }
 
+// A InvalidUnmarshalError describes a invalid value passed to [Unmarshal]
+// (The argument to [Unmarshal] should be a pointer to a struct.)
 type InvalidUnmarshalError struct {
 	Type reflect.Type
 }
 
+// A InvalidMarshalError describe a invalid value passed to [Marshal]
+// (The argument to [Marshal] should be a pointer to a struct.)
 type InvalidMarshalError struct {
 	Type reflect.Type
 }
@@ -107,12 +124,14 @@ func (e *InvalidMarshalError) Error() string {
 	return "form: Marshal(nil " + e.Type.String() + ")"
 }
 
+// A UnmarshalTypeError describes a value that is
+// invalid for a specific Go type.
 type UnmarshalTypeError struct {
-	Value  string
-	Type   reflect.Type
-	Struct string
-	Field  string
-	Err    error
+	Value  string       // value from form being decoded
+	Type   reflect.Type // type of Go value it could not be assigned to
+	Struct string       // name of struct
+	Field  string       // name of field that could not be unmarshalled
+	Err    error        // wrapped error either from parsing value, or value overflow Go type
 }
 
 func (e *UnmarshalTypeError) Error() string {
@@ -124,11 +143,13 @@ func (e *UnmarshalTypeError) Unwrap() error {
 	return e.Err
 }
 
+// A MarshalTypeError describe a value that
+// cannot be marshalled into a form.
 type MarshalTypeError struct {
-	Type   reflect.Type
-	Value  interface{}
-	Struct string
-	Field  string
+	Type   reflect.Type // type of Go value trying to be marshalled
+	Value  interface{}  // value trying to be marshalled
+	Struct string       // name of struct
+	Field  string       // name of field that could not be marshalled
 }
 
 func (e *MarshalTypeError) Error() string {

@@ -10,14 +10,14 @@ import (
 	"github.com/hunterwilkins2/form"
 )
 
-type Person struct {
-	Name string     `form:"name"`
-	Age  int        `form:"age"`
-	Pets []string   `form:"pets"`
-	Nums [2]float32 `form:"nums"`
-}
-
 func ExampleUnmarshal() {
+	type Person struct {
+		Name string     `form:"name"`
+		Age  int        `form:"age"`
+		Pets []string   `form:"pets"`
+		Nums [2]float32 `form:"nums"`
+	}
+
 	r, _ := http.NewRequest(http.MethodPost, "/users", bytes.NewBuffer([]byte{}))
 	reqForm := make(url.Values)
 	reqForm = url.Values{
@@ -39,12 +39,12 @@ func ExampleUnmarshal() {
 	// Output: &{John 24 [Sam Spot Chester] [10 20]}
 }
 
-type Page struct {
-	Page     int `form:"pageNumber"`
-	PageSize int `form:"pageSize"`
-}
-
 func ExampleMarshal() {
+	type Page struct {
+		Page     int `form:"pageNumber"`
+		PageSize int `form:"pageSize"`
+	}
+
 	p := Page{
 		Page:     2,
 		PageSize: 200,
