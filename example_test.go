@@ -38,3 +38,23 @@ func ExampleUnmarshal() {
 	fmt.Println(p)
 	// Output: &{John 24 [Sam Spot Chester] [10 20]}
 }
+
+type Page struct {
+	Page     int `form:"pageNumber"`
+	PageSize int `form:"pageSize"`
+}
+
+func ExampleMarshal() {
+	p := Page{
+		Page:     2,
+		PageSize: 200,
+	}
+	r, _ := http.NewRequest(http.MethodGet, "/products", nil)
+	err := form.Marshal(r, &p)
+	if err != nil {
+		log.Fatalf("Could not marshal page query: %s", err)
+	}
+
+	fmt.Println(r.URL)
+	// Output: /products?pageNumber=2&pageSize=200
+}
