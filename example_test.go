@@ -26,8 +26,8 @@ func ExampleUnmarshal() {
 		"pets": []string{"Sam", "Spot", "Chester"},
 		"nums": []string{"10", "20"},
 	}
+	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	r.URL.RawQuery = reqForm.Encode()
-	r.Form = reqForm
 
 	p := &Person{}
 	err := form.Unmarshal(r, p)
