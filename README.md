@@ -3,7 +3,7 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/hunterwilkins2/form/slug.svg)](https://pkg.go.dev/github.com/hunterwilkins2/form)
 ![Unit tests](https://github.com/hunterwilkins2/form/actions/workflows/test.yaml/badge.svg)
 
-Package form marshalles/unmarshalles Go structs into [*http.Request] forms
+Package form marshalles/unmarshalles Go structs into *http.Request forms
 
 This package adds the struct tag "form", only fields with this tag will be marshalled/unmarshalled.
 All primative types including their slice and array equivalent are supported.
